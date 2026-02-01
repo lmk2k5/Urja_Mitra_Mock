@@ -5,11 +5,12 @@ import { DeviceControlSwitch } from "@/components/app/device-control-switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  tbGetDevice,
-  tbGetLatestTelemetry,
-  tbListAlarmsForDevice,
-} from "@/lib/thingsboard/mock";
+import { apiGet } from "@/lib/api";
+import type {
+  TbAlarm,
+  TbDevice,
+  TbLatestTelemetry,
+} from "@/lib/thingsboard/types";
 
 function fmtTime(ts: number) {
   return new Date(ts).toLocaleString();
@@ -22,11 +23,15 @@ export default async function DeviceDetailsPage({
 }) {
   const { id } = await params;
 
-  const device = await tbGetDevice(id);
-  if (!device) notFound();
+  const [device, telemetry, alarms] = await Promise.all([
+    apiGet<TbDevice | null>(`/api/devices/${id}`),
+    apiGet<TbLatestTelemetry | null>(
+      `/api/telemetry?deviceId=${encodeURIComponent(id)}`
+    ),
+    apiGet<TbAlarm[]>(`/api/alarms?deviceId=${encodeURIComponent(id)}`),
+  ]);
 
-  const telemetry = await tbGetLatestTelemetry(id);
-  const alarms = await tbListAlarmsForDevice(id);
+  if (!device) notFound();
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,7 +84,7 @@ export default async function DeviceDetailsPage({
           <CardContent>
             {!telemetry ? (
               <div className="text-sm text-muted-foreground">
-                No telemetry available (mock).
+                No telemetry available.
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -163,7 +168,7 @@ export default async function DeviceDetailsPage({
         <CardContent className="flex flex-col gap-3">
           {alarms.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              No alarms for this device (mock).
+              No alarms for this device.
             </div>
           ) : (
             alarms.map((a) => (

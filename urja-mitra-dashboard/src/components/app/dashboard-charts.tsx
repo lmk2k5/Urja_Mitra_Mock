@@ -40,7 +40,7 @@ const energyConfig = {
 
 export function PowerVoltageChart({ data }: { data: TbSeriesPoint[] }) {
   return (
-    <ChartContainer config={powerConfig} className="h-[260px] w-full">
+    <ChartContainer config={powerConfig} className="h-[200px] min-w-0 w-full sm:h-[240px] lg:h-[260px]">
       <AreaChart data={data} margin={{ left: 12, right: 12, top: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
@@ -48,14 +48,16 @@ export function PowerVoltageChart({ data }: { data: TbSeriesPoint[] }) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          minTickGap={24}
+          minTickGap={16}
+          tick={{ fontSize: 10 }}
         />
         <YAxis
           yAxisId="left"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={42}
+          width={36}
+          tick={{ fontSize: 10 }}
         />
         <YAxis
           yAxisId="right"
@@ -63,7 +65,8 @@ export function PowerVoltageChart({ data }: { data: TbSeriesPoint[] }) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={42}
+          width={36}
+          tick={{ fontSize: 10 }}
         />
         <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
         <ChartLegend content={<ChartLegendContent />} />
@@ -92,7 +95,7 @@ export function PowerVoltageChart({ data }: { data: TbSeriesPoint[] }) {
 
 export function EnergyChart({ data }: { data: TbSeriesPoint[] }) {
   return (
-    <ChartContainer config={energyConfig} className="h-[260px] w-full">
+    <ChartContainer config={energyConfig} className="h-[200px] min-w-0 w-full sm:h-[240px] lg:h-[260px]">
       <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis
@@ -100,9 +103,10 @@ export function EnergyChart({ data }: { data: TbSeriesPoint[] }) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          minTickGap={24}
+          minTickGap={16}
+          tick={{ fontSize: 10 }}
         />
-        <YAxis tickLine={false} axisLine={false} tickMargin={8} width={42} />
+        <YAxis tickLine={false} axisLine={false} tickMargin={8} width={36} tick={{ fontSize: 10 }} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Bar
           dataKey="energyKwh"

@@ -79,8 +79,8 @@ export default function AboutPage() {
           </p>
           <Separator />
           <p className="text-xs">
-            This demo runs on mock data. Connect your ThingsBoard instance to
-            see real device telemetry and alarms.
+            Connect your ThingsBoard instance in Settings to see device
+            telemetry and alarms.
           </p>
         </CardContent>
       </Card>

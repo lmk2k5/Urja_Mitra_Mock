@@ -1,31 +1,33 @@
-## UrjaMitra — ThingsBoard Dashboard (Mock)
+## UrjaMitra — ThingsBoard Dashboard
 
-ShadCN UI based dashboard that is shaped like a ThingsBoard app, but currently runs entirely on **dummy values** (no ThingsBoard instance required).
+ShadCN UI based dashboard for ThingsBoard IoT energy monitoring.
 
 ### What’s inside
 
 - **UI**: Next.js App Router + Tailwind + `shadcn/ui`
-- **Mock ThingsBoard client**: `src/lib/thingsboard/mock.ts`
+- **ThingsBoard API client**: `src/lib/thingsboard/client.ts` (implement with real HTTP calls)
 - **Pages**:
+  - `/login` sign in (links to ThingsBoard login)
   - `/dashboard` overview
   - `/devices` list
   - `/devices/[id]` device details
-  - `/settings` placeholder
+  - `/tips` electricity-saving tips
+  - `/about` about us
+  - `/settings` ThingsBoard connection
 
 ## Getting Started
-Install deps (already installed if you generated locally) and run dev:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` (it redirects to `/dashboard`).
+Open `http://localhost:3000` (redirects to `/dashboard`).
 
-### Replace mock with real ThingsBoard API later
+### Connect ThingsBoard
 
-- Replace the functions in `src/lib/thingsboard/mock.ts` with real HTTP calls
-- Put ThingsBoard base URL / token in environment variables (e.g. `.env.local`)
+1. Add `THINGSBOARD_URL` (or `NEXT_PUBLIC_THINGSBOARD_URL`) and `THINGSBOARD_TOKEN` to `.env.local`
+2. Implement the API calls in `src/lib/thingsboard/client.ts` and `src/lib/thingsboard/series.ts`
 
 ### Create a GitHub repo + push (from this folder)
 
@@ -34,7 +36,7 @@ From `urja-mitra-dashboard/`:
 ```bash
 git init
 git add -A
-git commit -m "Initial commit: UrjaMitra ThingsBoard dashboard (mock)"
+git commit -m "Initial commit: UrjaMitra ThingsBoard dashboard"
 
 # Create the repo on GitHub (pick ONE option)
 # Option A: GitHub CLI (recommended)

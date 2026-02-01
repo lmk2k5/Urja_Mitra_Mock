@@ -8,6 +8,7 @@ import {
   Settings,
   Lightbulb,
   Info,
+  LogIn,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -31,7 +32,7 @@ export function AppSidebar() {
           ThingsBoard Dashboard
         </div>
         <div className="mt-2 text-xs text-muted-foreground">
-          Demo data (no API needed)
+          Connect ThingsBoard in Settings
         </div>
       </div>
 
@@ -56,9 +57,20 @@ export function AppSidebar() {
         })}
       </nav>
 
-      <div className="mt-auto rounded-xl border bg-card p-4 text-xs text-muted-foreground">
-        Swap `src/lib/thingsboard/mock.ts` with your real ThingsBoard API client
-        later.
+      <div className="mt-auto space-y-2">
+        <Link
+          href="/login"
+          className={cn(
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+            pathname === "/login" && "bg-accent text-accent-foreground",
+          )}
+        >
+          <LogIn className="h-4 w-4" />
+          <span className="truncate">Login</span>
+        </Link>
+        <div className="rounded-xl border bg-card p-4 text-xs text-muted-foreground">
+          Implement API calls in <code className="text-foreground">src/lib/thingsboard/client.ts</code>
+        </div>
       </div>
     </aside>
   );

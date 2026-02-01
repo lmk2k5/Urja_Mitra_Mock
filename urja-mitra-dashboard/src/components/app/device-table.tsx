@@ -31,19 +31,19 @@ export function DeviceTable({ devices }: { devices: TbDevice[] }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search devices…"
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
-        <div className="text-xs text-muted-foreground">
+        <div className="shrink-0 text-xs text-muted-foreground">
           Showing {filtered.length} of {devices.length}
         </div>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

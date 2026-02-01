@@ -34,8 +34,8 @@ export function DeviceControlSwitch({
   return (
     <div
       className={cn(
-        "flex items-center gap-2",
-        compact && "gap-1.5",
+        "flex items-center gap-2 touch-manipulation",
+        compact ? "gap-1.5 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0" : "min-h-[44px]",
         className
       )}
       onClick={(e) => e.stopPropagation()}
