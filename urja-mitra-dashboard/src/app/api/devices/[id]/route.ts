@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { tbGetDevice } from "@/lib/thingsboard/client";
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const device = await tbGetDevice(id);
     if (!device) {
       return NextResponse.json({ error: "Device not found" }, { status: 404 });
