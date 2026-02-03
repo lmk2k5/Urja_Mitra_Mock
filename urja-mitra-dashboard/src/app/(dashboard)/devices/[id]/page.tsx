@@ -19,9 +19,9 @@ function fmtTime(ts: number) {
 export default async function DeviceDetailsPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
 
   const [device, telemetry, alarms] = await Promise.all([
     apiGet<TbDevice | null>(`/api/devices/${id}`),
@@ -32,6 +32,8 @@ export default async function DeviceDetailsPage({
   ]);
 
   if (!device) notFound();
+
+  const deviceStatus = device.status ?? "INACTIVE";
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,8 +52,8 @@ export default async function DeviceDetailsPage({
             {device.label ?? "—"}
           </div>
         </div>
-        <Badge variant={device.status === "ONLINE" ? "secondary" : "outline"}>
-          {device.status}
+        <Badge variant={deviceStatus === "ONLINE" ? "secondary" : "outline"}>
+          {deviceStatus}
         </Badge>
       </div>
 
@@ -60,18 +62,37 @@ export default async function DeviceDetailsPage({
           <CardTitle>Control</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="font-medium">Power</div>
-              <div className="text-sm text-muted-foreground">
-                Turn device on or off
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="font-medium">Switch 1</div>
+                <div className="text-sm text-muted-foreground">
+                  RPC method: Switch_1
+                </div>
               </div>
+              <DeviceControlSwitch
+                deviceId={device.id.id}
+                deviceName={device.name}
+                method="Switch_1"
+                label="Switch 1"
+                defaultOn={deviceStatus === "ONLINE"}
+              />
             </div>
-            <DeviceControlSwitch
-              deviceId={device.id.id}
-              deviceName={device.name}
-              defaultOn={device.status === "ONLINE"}
-            />
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="font-medium">Switch 2</div>
+                <div className="text-sm text-muted-foreground">
+                  RPC method: Switch_2
+                </div>
+              </div>
+              <DeviceControlSwitch
+                deviceId={device.id.id}
+                deviceName={device.name}
+                method="Switch_2"
+                label="Switch 2"
+                defaultOn={deviceStatus === "ONLINE"}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

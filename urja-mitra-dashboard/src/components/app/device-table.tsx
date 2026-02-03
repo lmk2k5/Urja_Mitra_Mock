@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { DeviceControlSwitch } from "@/components/app/device-control-switch";
 import {
   Table,
   TableBody,
@@ -51,33 +52,49 @@ export function DeviceTable({ devices }: { devices: TbDevice[] }) {
               <TableHead className="hidden lg:table-cell">Label</TableHead>
               <TableHead className="hidden md:table-cell">Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Open</TableHead>
+              <TableHead className="text-right">Control</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.map((d) => (
               <TableRow key={d.id.id}>
-                <TableCell className="font-medium">{d.name}</TableCell>
+                <TableCell className="font-medium">
+                  <Link className="underline underline-offset-4" href={`/devices/${d.id.id}`}>
+                    {d.name}
+                  </Link>
+                </TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  {d.label ?? "—"}
+                  {d.label ?? "-"}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {d.type ?? "—"}
+                  {d.type ?? "-"}
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant={d.status === "ONLINE" ? "secondary" : "outline"}
                   >
-                    {d.status}
+                    {d.status ?? "INACTIVE"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link
-                    className="text-sm underline underline-offset-4"
-                    href={`/devices/${d.id.id}`}
-                  >
-                    Details
-                  </Link>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <DeviceControlSwitch
+                      deviceId={d.id.id}
+                      deviceName={d.name}
+                      method="Switch_1"
+                      label="Switch 1"
+                      defaultOn={d.status === "ONLINE"}
+                      compact
+                    />
+                    <DeviceControlSwitch
+                      deviceId={d.id.id}
+                      deviceName={d.name}
+                      method="Switch_2"
+                      label="Switch 2"
+                      defaultOn={d.status === "ONLINE"}
+                      compact
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

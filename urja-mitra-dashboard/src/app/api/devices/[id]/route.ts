@@ -3,10 +3,10 @@ import { tbGetDevice } from "@/lib/thingsboard/client";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const device = await tbGetDevice(id);
     if (!device) {
       return NextResponse.json({ error: "Device not found" }, { status: 404 });
