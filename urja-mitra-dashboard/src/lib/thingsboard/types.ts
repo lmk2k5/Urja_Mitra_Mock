@@ -11,6 +11,8 @@ export type TbDevice = {
   customerTitle?: string;
   status: "ONLINE" | "OFFLINE";
   lastActivityTs: number;
+  /** Optional alias used by some TB payloads */
+  lastActivityTime?: number;
 };
 
 export type TbLatestTelemetry = {
