@@ -9,8 +9,14 @@ export async function GET(request: Request) {
 
   try {
     if (type === "series") {
+      if (!deviceId) {
+        return NextResponse.json(
+          { error: "deviceId is required for time-series telemetry" },
+          { status: 400 }
+        );
+      }
       const series = await tbGetTimeSeries({
-        deviceId: deviceId ?? undefined,
+        deviceId,
       });
       return NextResponse.json(series);
     }
