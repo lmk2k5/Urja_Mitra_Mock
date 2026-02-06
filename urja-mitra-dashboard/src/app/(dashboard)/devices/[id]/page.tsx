@@ -33,7 +33,10 @@ export default async function DeviceDetailsPage({
 
   if (!device) notFound();
 
-  const deviceStatus = device.status ?? "INACTIVE";
+  const now = Date.now();
+  const lastActivity = device.lastActivityTs ?? device.lastActivityTime;
+  const isRecent = typeof lastActivity === "number" && now - lastActivity < 5 * 60 * 1000;
+  const deviceStatus = device.status ?? (isRecent ? "ONLINE" : "OFFLINE");
 
   return (
     <div className="flex flex-col gap-6">

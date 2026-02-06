@@ -66,7 +66,19 @@ export default function DashboardPage() {
 
   const devices = useMemo(() => {
     if (!data?.devices || !Array.isArray(data.devices.data)) return [] as any[];
-    return data.devices.data as any[];
+
+    const now = Date.now();
+    const isRecent = (ts: number | undefined | null) =>
+      typeof ts === "number" && now - ts < 5 * 60 * 1000; // 5-minute freshness window
+
+    return (data.devices.data as any[]).map((d) => {
+      const lastActivity = d?.lastActivityTs ?? d?.lastActivityTime;
+      const derivedStatus = isRecent(lastActivity) ? "ONLINE" : "OFFLINE";
+      return {
+        ...d,
+        status: d?.status ?? derivedStatus,
+      };
+    });
   }, [data]);
 
   const alarms = useMemo(() => {
