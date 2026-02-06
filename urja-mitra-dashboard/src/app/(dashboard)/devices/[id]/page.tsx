@@ -110,20 +110,6 @@ export default async function DeviceDetailsPage({
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-lg border p-3">
-                  <div className="text-xs text-muted-foreground">
-                    Temperature
-                  </div>
-                  <div className="text-2xl font-semibold">
-                    {telemetry.temperatureC}°C
-                  </div>
-                </div>
-                <div className="rounded-lg border p-3">
-                  <div className="text-xs text-muted-foreground">Humidity</div>
-                  <div className="text-2xl font-semibold">
-                    {telemetry.humidityPct}%
-                  </div>
-                </div>
-                <div className="rounded-lg border p-3">
                   <div className="text-xs text-muted-foreground">Voltage</div>
                   <div className="text-2xl font-semibold">
                     {telemetry.voltageV} V
@@ -142,11 +128,9 @@ export default async function DeviceDetailsPage({
                   </div>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <div className="text-xs text-muted-foreground">
-                    Energy today
-                  </div>
+                  <div className="text-xs text-muted-foreground">Energy</div>
                   <div className="text-2xl font-semibold">
-                    {telemetry.energyKwhToday} kWh
+                    {telemetry.energyKwh} kWh
                   </div>
                 </div>
               </div>
@@ -155,8 +139,7 @@ export default async function DeviceDetailsPage({
             <Separator className="my-4" />
 
             <div className="text-xs text-muted-foreground">
-              Updated: {telemetry ? fmtTime(telemetry.updatedAtTs) : "—"} · RSSI:{" "}
-              {telemetry ? `${telemetry.rssiDbm} dBm` : "—"}
+              Updated: {telemetry ? fmtTime(telemetry.updatedAtTs) : "—"}
             </div>
           </CardContent>
         </Card>

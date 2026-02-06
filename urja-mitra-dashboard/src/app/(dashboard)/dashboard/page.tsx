@@ -19,6 +19,7 @@ type TbApiResponse = {
   alarms?: TbPage<any> | null;
   latest?: TbTelemetryMap | null;
   history?: TbTelemetryMap | null;
+  history30d?: TbTelemetryMap | null;
   telemetryLatest?: TbTelemetryMap | null; // fallback: older field name
   telemetrySeries?: TbTelemetryMap | null; // fallback: older field name
 };
@@ -75,6 +76,7 @@ export default function DashboardPage() {
 
   const telemetryLatest = data?.latest ?? data?.telemetryLatest ?? null;
   const telemetrySeries = data?.history ?? data?.telemetrySeries ?? null;
+  const telemetrySeries30d = data?.history30d ?? null;
 
   const latestValue = (key: string): number | null => {
     const arr = telemetryLatest?.[key];
@@ -93,42 +95,49 @@ export default function DashboardPage() {
     return new Date(Math.max(...ts)).toLocaleString();
   }, [telemetryLatest]);
 
-  const seriesData = useMemo<TbSeriesPoint[]>(() => {
-    if (!telemetrySeries) return [];
+  const toSeries = useMemo(() => {
+    const build = (source: TbTelemetryMap | null, labelFormatter: (ts: number) => string) => {
+      if (!source) return [] as TbSeriesPoint[];
 
-    const pickSeries = (key: string) => telemetrySeries?.[key] ?? [];
-    const baseKey = ["power", "energy", "voltage", "current", "energyKwhToday"].find(
-      (key) => pickSeries(key).length > 0,
-    );
+      const pickSeries = (key: string) => source?.[key] ?? [];
+      const baseKey = ["power", "energy", "voltage", "current"].find(
+        (key) => pickSeries(key).length > 0,
+      );
 
-    const base = baseKey ? pickSeries(baseKey) : [];
-    if (base.length === 0) return [];
+      const base = baseKey ? pickSeries(baseKey) : [];
+      if (base.length === 0) return [] as TbSeriesPoint[];
 
-    const toNumber = (value: string | undefined): number | null => {
-      if (value == null) return null;
-      const num = Number(value);
-      return Number.isFinite(num) ? num : null;
+      const toNumber = (value: string | undefined): number | null => {
+        if (value == null) return null;
+        const num = Number(value);
+        return Number.isFinite(num) ? num : null;
+      };
+
+      return base.map((row, idx) => {
+        const ts = typeof row.ts === "number" ? row.ts : Date.now();
+        const label = labelFormatter(ts);
+        const pick = (key: string) => toNumber(pickSeries(key)?.[idx]?.value);
+
+        return {
+          ts,
+          label,
+          powerW: pick("power") ?? 0,
+          voltageV: pick("voltage") ?? 0,
+          currentA: pick("current") ?? 0,
+          energyKwh: pick("energy") ?? 0,
+        } satisfies TbSeriesPoint;
+      });
     };
 
-    return base.map((row, idx) => {
-      const ts = typeof row.ts === "number" ? row.ts : Date.now();
-      const label = new Date(ts).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      const pick = (key: string) => toNumber(pickSeries(key)?.[idx]?.value);
-
-      return {
-        ts,
-        label,
-        powerW: pick("power") ?? 0,
-        voltageV: pick("voltage") ?? 0,
-        currentA: pick("current") ?? 0,
-        energyKwh: pick("energy") ?? pick("energyKwhToday") ?? 0,
-      } satisfies TbSeriesPoint;
-    });
-  }, [telemetrySeries]);
+    return {
+      day: build(telemetrySeries, (ts) =>
+        new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      ),
+      month: build(telemetrySeries30d, (ts) =>
+        new Date(ts).toLocaleDateString([], { month: "short", day: "numeric" })
+      ),
+    };
+  }, [telemetrySeries, telemetrySeries30d]);
 
   const loadingState = (
     <div className="flex flex-col gap-4">
@@ -178,8 +187,8 @@ export default function DashboardPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Metric label="Power" value={latestValue("power")} unit="W" />
           <Metric label="Voltage" value={latestValue("voltage")} unit="V" />
-          <Metric label="Temperature" value={latestValue("temperature")} unit="°C" />
-          <Metric label="Humidity" value={latestValue("humidity")} unit="%" />
+          <Metric label="Current" value={latestValue("current")} unit="A" />
+          <Metric label="Energy" value={latestValue("energy")} unit="kWh" />
         </div>
       </CardContent>
     </Card>
@@ -193,10 +202,10 @@ export default function DashboardPage() {
           <Badge variant="secondary">24h</Badge>
         </CardHeader>
         <CardContent>
-          {seriesData.length === 0 ? (
+          {toSeries.day.length === 0 ? (
             <div className="text-sm text-muted-foreground">No series data available.</div>
           ) : (
-            <PowerVoltageChart data={seriesData} />
+            <PowerVoltageChart data={toSeries.day} />
           )}
         </CardContent>
       </Card>
@@ -207,10 +216,24 @@ export default function DashboardPage() {
           <Badge variant="secondary">24h</Badge>
         </CardHeader>
         <CardContent>
-          {seriesData.length === 0 ? (
+          {toSeries.day.length === 0 ? (
             <div className="text-sm text-muted-foreground">No series data available.</div>
           ) : (
-            <EnergyChart data={seriesData} />
+            <EnergyChart data={toSeries.day} />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden lg:col-span-2">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle>Power & Voltage · 30d</CardTitle>
+          <Badge variant="secondary">30d</Badge>
+        </CardHeader>
+        <CardContent>
+          {toSeries.month.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No series data available.</div>
+          ) : (
+            <PowerVoltageChart data={toSeries.month} />
           )}
         </CardContent>
       </Card>

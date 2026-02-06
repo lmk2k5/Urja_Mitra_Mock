@@ -100,7 +100,7 @@ export async function tbGetDevice(deviceId: string): Promise<TbDevice | null> {
 export async function tbGetLatestTelemetry(
   deviceId: string
 ): Promise<TbLatestTelemetry | null> {
-  const keys = encodeURIComponent("temperature,humidity,voltage,current,power,energy,energyKwhToday,rssi");
+  const keys = encodeURIComponent("voltage,current,power,energy");
   const res = await tbFetch(
     `/api/plugins/telemetry/DEVICE/${encodeURIComponent(deviceId)}/values/timeseries?keys=${keys}&limit=1`
   );
@@ -112,7 +112,6 @@ export async function tbGetLatestTelemetry(
   }
 
   const data = (await res.json()) as Record<string, { ts: number; value: string }[]>;
-  // Map to simplified shape if data is present; otherwise return null.
   if (!data || Object.keys(data).length === 0) return null;
 
   const pick = (key: string): number | null => {
@@ -124,13 +123,10 @@ export async function tbGetLatestTelemetry(
   const updatedAtTs = data[Object.keys(data)[0]]?.[0]?.ts ?? Date.now();
 
   return {
-    temperatureC: pick("temperature") ?? 0,
-    humidityPct: pick("humidity") ?? 0,
     voltageV: pick("voltage") ?? 0,
     currentA: pick("current") ?? 0,
     powerW: pick("power") ?? 0,
-    energyKwhToday: pick("energyKwhToday") ?? pick("energy") ?? 0,
-    rssiDbm: pick("rssi") ?? 0,
+    energyKwh: pick("energy") ?? 0,
     updatedAtTs,
   } satisfies TbLatestTelemetry;
 }

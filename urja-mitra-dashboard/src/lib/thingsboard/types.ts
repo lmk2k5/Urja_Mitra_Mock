@@ -14,13 +14,10 @@ export type TbDevice = {
 };
 
 export type TbLatestTelemetry = {
-  temperatureC: number;
-  humidityPct: number;
   voltageV: number;
   currentA: number;
   powerW: number;
-  energyKwhToday: number;
-  rssiDbm: number;
+  energyKwh: number;
   updatedAtTs: number;
 };
 

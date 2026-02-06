@@ -88,7 +88,7 @@ async function tbFetch(path: string, init?: RequestInit) {
 
 export async function tbGetTimeSeries({
   deviceId,
-  keys = ["power", "voltage", "current", "energy", "energyKwhToday"],
+  keys = ["power", "voltage", "current", "energy"],
   startTs,
   endTs,
   limit = 200,
@@ -138,7 +138,7 @@ export async function tbGetTimeSeries({
         powerW: pick("power"),
         voltageV: pick("voltage"),
         currentA: pick("current"),
-        energyKwh: pick("energyKwhToday") ?? pick("energy"),
+        energyKwh: pick("energy"),
       } satisfies TbSeriesPoint;
     });
   } catch (error) {
@@ -149,7 +149,7 @@ export async function tbGetTimeSeries({
 
 export async function tbGetLatestTimeSeries(
   deviceId: string,
-  keys: string[] = ["power", "voltage", "current", "energy", "energyKwhToday", "temperature", "humidity"]
+  keys: string[] = ["power", "voltage", "current", "energy"]
 ): Promise<Record<string, { ts: number; value: string }[]>> {
   const params = new URLSearchParams();
   params.set("keys", keys.join(","));

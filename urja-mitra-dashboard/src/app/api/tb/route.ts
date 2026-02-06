@@ -45,9 +45,6 @@ function mockPayload() {
       voltage: [{ ts: ts(1), value: "230" }],
       current: [{ ts: ts(1), value: "5.2" }],
       energy: [{ ts: ts(1), value: "8.4" }],
-      energyKwhToday: [{ ts: ts(1), value: "8.4" }],
-      temperature: [{ ts: ts(1), value: "28" }],
-      humidity: [{ ts: ts(1), value: "61" }],
     },
     history: {
       power: [
@@ -78,26 +75,35 @@ function mockPayload() {
         { ts: ts(30), value: "7.9" },
         { ts: ts(1), value: "8.4" },
       ],
-      energyKwhToday: [
-        { ts: ts(120), value: "6.0" },
-        { ts: ts(90), value: "6.7" },
-        { ts: ts(60), value: "7.3" },
-        { ts: ts(30), value: "7.9" },
+    },
+    history30d: {
+      power: [
+        { ts: ts(24 * 60 * 7), value: "800" },
+        { ts: ts(24 * 60 * 5), value: "950" },
+        { ts: ts(24 * 60 * 3), value: "1100" },
+        { ts: ts(24 * 60 * 2), value: "1180" },
+        { ts: ts(1), value: "1200" },
+      ],
+      voltage: [
+        { ts: ts(24 * 60 * 7), value: "227" },
+        { ts: ts(24 * 60 * 5), value: "228" },
+        { ts: ts(24 * 60 * 3), value: "229" },
+        { ts: ts(24 * 60 * 2), value: "230" },
+        { ts: ts(1), value: "230" },
+      ],
+      current: [
+        { ts: ts(24 * 60 * 7), value: "4.0" },
+        { ts: ts(24 * 60 * 5), value: "4.4" },
+        { ts: ts(24 * 60 * 3), value: "4.9" },
+        { ts: ts(24 * 60 * 2), value: "5.0" },
+        { ts: ts(1), value: "5.2" },
+      ],
+      energy: [
+        { ts: ts(24 * 60 * 7), value: "3.0" },
+        { ts: ts(24 * 60 * 5), value: "4.5" },
+        { ts: ts(24 * 60 * 3), value: "6.2" },
+        { ts: ts(24 * 60 * 2), value: "7.8" },
         { ts: ts(1), value: "8.4" },
-      ],
-      temperature: [
-        { ts: ts(120), value: "27" },
-        { ts: ts(90), value: "27.5" },
-        { ts: ts(60), value: "28" },
-        { ts: ts(30), value: "28.2" },
-        { ts: ts(1), value: "28" },
-      ],
-      humidity: [
-        { ts: ts(120), value: "58" },
-        { ts: ts(90), value: "59" },
-        { ts: ts(60), value: "60" },
-        { ts: ts(30), value: "61" },
-        { ts: ts(1), value: "61" },
       ],
     },
   };
@@ -185,13 +191,13 @@ export async function GET() {
 
     let latest: unknown = null;
     let history: unknown = null;
+    let history30d: unknown = null;
 
     if (TB_DEVICE_ID) {
       const now = Date.now();
       const startTs = now - 24 * 60 * 60 * 1000;
-      const keys = encodeURIComponent(
-        "temperature,humidity,voltage,current,power,energy,energyKwhToday,rssi"
-      );
+      const startTs30d = now - 30 * 24 * 60 * 60 * 1000;
+      const keys = encodeURIComponent("voltage,current,power,energy");
 
       const latestRes = await tbFetch(
         `/api/plugins/telemetry/DEVICE/${TB_DEVICE_ID}/values/timeseries?keys=${keys}&limit=1`
@@ -206,6 +212,13 @@ export async function GET() {
       if (seriesRes.ok) {
         history = await seriesRes.json();
       }
+
+      const seriesMonthRes = await tbFetch(
+        `/api/plugins/telemetry/DEVICE/${TB_DEVICE_ID}/values/timeseries?keys=${keys}&startTs=${startTs30d}&endTs=${now}&limit=1000`
+      );
+      if (seriesMonthRes.ok) {
+        history30d = await seriesMonthRes.json();
+      }
     }
 
     // demo-only shape; keep values minimal for frontend charts/cards
@@ -213,6 +226,7 @@ export async function GET() {
       devices,
       latest,
       history,
+      history30d,
       alarms,
     });
   } catch (error) {

@@ -15,10 +15,11 @@ export default function SettingsPage() {
           <CardTitle>ThingsBoard API</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Add <code className="font-mono text-foreground">THINGSBOARD_URL</code> and{" "}
-          <code className="font-mono text-foreground">THINGSBOARD_TOKEN</code> to{" "}
-          <code className="font-mono text-foreground">.env.local</code>. Implement
-          the API calls in <code className="font-mono text-foreground">src/lib/thingsboard/client.ts</code>.
+          Configure <code className="font-mono text-foreground">THINGSBOARD_URL</code> plus either
+          <code className="font-mono text-foreground">THINGSBOARD_TOKEN</code> (JWT) or the pair
+          <code className="font-mono text-foreground">THINGSBOARD_USERNAME</code> and
+          <code className="font-mono text-foreground">THINGSBOARD_PASSWORD</code> in
+          <code className="font-mono text-foreground">.env.local</code>, then restart the dev server.
         </CardContent>
       </Card>
     </div>
