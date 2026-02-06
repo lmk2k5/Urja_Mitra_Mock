@@ -5,9 +5,103 @@ const TB_USER = process.env.THINGSBOARD_USERNAME;
 const TB_PASS = process.env.THINGSBOARD_PASSWORD;
 const TB_DEVICE_ID =
   process.env.THINGSBOARD_DEVICE_ID ?? "06dfe980-ff8b-11f0-9ad3-05720371f07f"; // demo-only fallback
+const TB_USE_MOCK = process.env.THINGSBOARD_USE_MOCK === "true";
 
 let tbToken: string | null = null;
 let tbTokenExpiresAt = 0;
+
+function mockPayload() {
+  const now = Date.now();
+  const ts = (offsetMinutes = 0) => now - offsetMinutes * 60 * 1000;
+
+  return {
+    devices: {
+      data: [
+        {
+          id: { id: "mock-device-1", entityType: "DEVICE" },
+          name: "Demo Feeder",
+          label: "Zone A",
+          type: "demo",
+          customerTitle: "Demo Org",
+          status: "ONLINE",
+          lastActivityTs: now,
+        },
+      ],
+    },
+    alarms: {
+      data: [
+        {
+          id: { id: "mock-alarm-1", entityType: "ALARM" },
+          type: "Voltage",
+          severity: "MINOR",
+          status: "ACTIVE_UNACK",
+          createdTime: ts(30),
+          details: "Demo alarm (mock mode)",
+        },
+      ],
+    },
+    latest: {
+      power: [{ ts: ts(1), value: "1200" }],
+      voltage: [{ ts: ts(1), value: "230" }],
+      current: [{ ts: ts(1), value: "5.2" }],
+      energy: [{ ts: ts(1), value: "8.4" }],
+      energyKwhToday: [{ ts: ts(1), value: "8.4" }],
+      temperature: [{ ts: ts(1), value: "28" }],
+      humidity: [{ ts: ts(1), value: "61" }],
+    },
+    history: {
+      power: [
+        { ts: ts(120), value: "900" },
+        { ts: ts(90), value: "1000" },
+        { ts: ts(60), value: "1150" },
+        { ts: ts(30), value: "1180" },
+        { ts: ts(1), value: "1200" },
+      ],
+      voltage: [
+        { ts: ts(120), value: "228" },
+        { ts: ts(90), value: "229" },
+        { ts: ts(60), value: "230" },
+        { ts: ts(30), value: "231" },
+        { ts: ts(1), value: "230" },
+      ],
+      current: [
+        { ts: ts(120), value: "4.1" },
+        { ts: ts(90), value: "4.5" },
+        { ts: ts(60), value: "5.0" },
+        { ts: ts(30), value: "5.1" },
+        { ts: ts(1), value: "5.2" },
+      ],
+      energy: [
+        { ts: ts(120), value: "6.0" },
+        { ts: ts(90), value: "6.7" },
+        { ts: ts(60), value: "7.3" },
+        { ts: ts(30), value: "7.9" },
+        { ts: ts(1), value: "8.4" },
+      ],
+      energyKwhToday: [
+        { ts: ts(120), value: "6.0" },
+        { ts: ts(90), value: "6.7" },
+        { ts: ts(60), value: "7.3" },
+        { ts: ts(30), value: "7.9" },
+        { ts: ts(1), value: "8.4" },
+      ],
+      temperature: [
+        { ts: ts(120), value: "27" },
+        { ts: ts(90), value: "27.5" },
+        { ts: ts(60), value: "28" },
+        { ts: ts(30), value: "28.2" },
+        { ts: ts(1), value: "28" },
+      ],
+      humidity: [
+        { ts: ts(120), value: "58" },
+        { ts: ts(90), value: "59" },
+        { ts: ts(60), value: "60" },
+        { ts: ts(30), value: "61" },
+        { ts: ts(1), value: "61" },
+      ],
+    },
+  };
+}
 
 function getBaseUrl(): string {
   if (!TB_URL) {
@@ -69,6 +163,10 @@ async function tbFetch(path: string, init?: RequestInit) {
 
 export async function GET() {
   try {
+    if (TB_USE_MOCK) {
+      return NextResponse.json(mockPayload());
+    }
+
     // Devices
     const devicesRes = await tbFetch("/api/tenant/devices?pageSize=50&page=0");
     if (!devicesRes.ok) {
@@ -119,6 +217,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[api/tb]", error);
+    if (TB_USE_MOCK) {
+      return NextResponse.json(mockPayload());
+    }
     return NextResponse.json(
       { error: "Failed to fetch ThingsBoard data" },
       { status: 500 }
